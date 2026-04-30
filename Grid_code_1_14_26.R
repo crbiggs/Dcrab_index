@@ -23,7 +23,7 @@ utm_xmax <- max(corners_coords[, "X"])
 utm_ymin <- min(corners_coords[, "Y"])
 utm_ymax <- max(corners_coords[, "Y"])
 
-# Create grid with 16km^2 spacing
+# Create grid with 4km^2 spacing
 grid_spacing <- 4000  # 4 km in meters
 x_seq <- seq(utm_xmin, utm_xmax, by = grid_spacing)
 y_seq <- seq(utm_ymin, utm_ymax, by = grid_spacing)
@@ -59,20 +59,20 @@ within <- st_within(grid_latlon, WC, sparse=F)
 not_within <- grid_latlon[!within,]
 
 #Data frame with coordinate points and filter out extra points I don't want 
-WCgrid16km <- as.data.frame(st_coordinates(not_within))
-ggplot()+geom_point(data=WCgrid16km, aes(X,Y))+geom_sf(data=WA_coast)
+WCgrid4km <- as.data.frame(st_coordinates(not_within))
+ggplot()+geom_point(data=WCgrid4km, aes(X,Y))+geom_sf(data=WA_coast)
 
-colnames(WCgrid16km) <- c("Lon","Lat")
-WCgrid16km <- WCgrid16km |> filter(!(Lat >48.1 & Lon > -124.71))
-WCgrid16km <- WCgrid16km |> filter(Lon < -123.5)
+colnames(WCgrid4km) <- c("Lon","Lat")
+WCgrid4km <- WCgrid4km |> filter(!(Lat >48.1 & Lon > -124.71))
+WCgrid4km <- WCgrid4km |> filter(Lon < -123.5)
 
 ## Add UTM coordinates back in 
 
-GridD16_utm <- add_utm_columns(WCgrid16km, ll_names=c("Lon","Lat") )
+GridD4_utm <- add_utm_columns(WCgrid14km, ll_names=c("Lon","Lat") )
 
 ## UTM projection should be correct, lat/lon should be slightly skewed 
-ggplot() + geom_point(data=WCgrid16km, aes(Lon,Lat)) + geom_sf(data=WA_coast)
-ggplot() + geom_point(data=GridD16_utm, aes(X*1000,Y*1000))+ geom_sf(data=WA_coast_proj)
+ggplot() + geom_point(data=WCgrid4km, aes(Lon,Lat)) + geom_sf(data=WA_coast)
+ggplot() + geom_point(data=GridD4_utm, aes(X*1000,Y*1000))+ geom_sf(data=WA_coast_proj)
 
 ## Next add depths
 library(raster)
@@ -80,17 +80,17 @@ gebco_df <- as.data.frame(gebco_raster, xy=T)
 
 colnames(gebco_df) <- c("Lon", "Lat", "Depth")
 
-depth_value <- raster::extract(gebco_raster,GridD16_utm[1:2])
+depth_value <- raster::extract(gebco_raster,GridD4_utm[1:2])
 depthB <- as.vector(depth_value)
 depthC <- as.data.frame(depthB)
 
-G16all <- cbind(GridD16_utm, depthC)
-save(G16all, file="G16all.RData")
+G4all <- cbind(GridD4_utm, depthC)
+save(G4all, file="G4all.RData")
 
-G16all <- G16all |> filter(depthB < 0)
+G4all <- G4all |> filter(depthB < 0)
 
 
-G16YD <- expand_grid(G16all, Cyear=c(2010:2028))
-G16YDI <- left_join(G16YD, I5, by="Cyear")
+G4YD <- expand_grid(G4all, Cyear=c(2010:2028))
+G4YDI <- left_join(G4YD, I5, by="Cyear")
 
-save(G16YDI, file="G16YDI.RData")
+save(G4YDI, file="G4YDI.RData")

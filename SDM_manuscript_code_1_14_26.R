@@ -3,7 +3,7 @@
 library(tidyverse)
 library(sdmTMB)
 load("Log100Ind.RData")
-load("G16YDI.RData")
+load("G4YDI.RData")
 load("WA_coast_proj.RData")
 load("I5.RData")
 theme_set(theme_light())
@@ -45,56 +45,56 @@ DHARMa::testQuantiles(fitD)
 
 
 ## Make prediction grid for visualizing sdm output 
-## G16YDI-  16 km^2 cells , points are 4 km apart. 
+## G4YDI-  4km^2 cells , points are 2 km apart. 
 
-SBLD_pred16 <- predict(SBLDdpth, newdata=G16YDI, return_tmb_object = T)
-SBLD_index16 <- get_index(SBLD_pred16, bias_correct = T, area=16)
-SBLD_cog16 <- get_cog(SBLD_pred16, bias_correct = T, area=16, format="wide")
+SBLD_pred4 <- predict(SBLDdpth, newdata=G4YDI, return_tmb_object = T)
+SBLD_index4 <- get_index(SBLD_pred4, bias_correct = T, area=4)
+SBLD_cog4 <- get_cog(SBLD_pred4, bias_correct = T, area=4, format="wide")
 
 
 save(SBLDdpth, file="SBLDdpth.RData")
-save(SBLD_pred16, file="SBLD_pred16.RData")
+save(SBLD_pred4, file="SBLD_pred4.RData")
 save(fitD, file="fitD.Rdata")
-save(SBLD_index16, file="SBLD_index16.RData")
+save(SBLD_index4, file="SBLD_index4.RData")
 
 
 
 library(ggrepel)
 
-ggplot(SBLD_cog16[1:14,])+geom_point( aes(est_x*1000, est_y*1000, ))+
+ggplot(SBLD_cog4[1:14,])+geom_point( aes(est_x*1000, est_y*1000, ))+
   geom_text_repel( aes(est_x*1000, est_y*1000,label=Cyear), max.overlaps=19)+labs(x="", y="")+guides(x=guide_axis(angle=90))+
   geom_linerange(aes(y=est_y*1000, xmin = lwr_x*1000, xmax = upr_x*1000,color=Cyear)) +
   geom_linerange(aes(x=est_x*1000,ymin = lwr_y*1000, ymax = upr_y*1000,color=Cyear)) +scale_colour_gradient()+
   geom_sf(data=WA_coast_proj)+coord_sf(ylim=c(5150*1000,5188*1000), xlim=c(370*1000, 400*1000))+ggtitle("Center of Gravity")
 
 
-ggplot() + geom_line(data=SBLD_index16, aes(Cyear,est*65, color="Model"))+ geom_line(data=I5[44:62,], aes(Cyear,Landkg, color="Landings"))+
-  geom_ribbon(data=SBLD_index16, aes(Cyear, est*65, ymax=upr*65, ymin=lwr*65), alpha=0.3)+
+ggplot() + geom_line(data=SBLD_index4, aes(Cyear,est*65, color="Model"))+ geom_line(data=I5[44:62,], aes(Cyear,Landkg, color="Landings"))+
+  geom_ribbon(data=SBLD_index4, aes(Cyear, est*65, ymax=upr*65, ymin=lwr*65), alpha=0.3)+
   labs(x="Crab Year", y="Landings (kg)", color="") + scale_x_continuous(breaks=c(2010:2028))+
   scale_y_continuous(
     sec.axis = sec_axis(~ . / 65, name = "Number of Crab") # Transformation
   ) 
 
-ggplot()+geom_raster(data=SBLD_pred16$data, aes(x=X*1000, y=Y*1000, fill=exp(est)))+
+ggplot()+geom_raster(data=SBLD_pred4$data, aes(x=X*1000, y=Y*1000, fill=exp(est)))+
   scale_fill_viridis_c()+facet_wrap(~Cyear, nrow=3)+
   geom_sf(data=WA_coast_proj)+
   theme_light()+ guides(x=guide_axis(angle=90))+labs(x="", y="")+
   ggtitle("SBLD Model")+labs(fill="Crab per pot")
 
-ggplot()+geom_raster(data=SBLD_pred16$data, aes(x=X*1000, y=Y*1000, fill=est_non_rf))+
+ggplot()+geom_raster(data=SBLD_pred4$data, aes(x=X*1000, y=Y*1000, fill=est_non_rf))+
   scale_fill_viridis_c()+facet_wrap(~Cyear, nrow=2)+
   geom_sf(data=WA_coast_proj)+
   theme_light()+ guides(x=guide_axis(angle=90))+labs(x="", y="")+
   ggtitle("SBLD Model") 
 
-ggplot()+geom_raster(data=SBLD_pred16$data, aes(x=X*1000, y=Y*1000, fill=exp(est_rf)))+
+ggplot()+geom_raster(data=SBLD_pred4$data, aes(x=X*1000, y=Y*1000, fill=exp(est_rf)))+
   scale_fill_viridis_c()+facet_wrap(~Cyear, nrow=2)+
   geom_sf(data=WA_coast_proj)+
   theme_light()+ guides(x=guide_axis(angle=90))+labs(x="", y="")+
   ggtitle("SBLD Model")
 
 
-ggplot()+geom_raster(data=SBLD_pred16$data, aes(x=X*1000, y=Y*1000, fill=epsilon_st))+
+ggplot()+geom_raster(data=SBLD_pred4$data, aes(x=X*1000, y=Y*1000, fill=epsilon_st))+
   scale_fill_gradient2()+facet_wrap(~Cyear, nrow=2)+
   geom_sf(data=WA_coast_proj)+
   theme_light()+ guides(x=guide_axis(angle=90))+labs(x="", y="")+
@@ -104,9 +104,9 @@ ggplot()+geom_raster(data=SBLD_pred16$data, aes(x=X*1000, y=Y*1000, fill=epsilon
 
 
 save(SBLDdpth, file="SBLDdpth.RData")
-save(SBLD_index, file="SBLD_index16.RData")
-save(SBLD_pred4, file="SBLD_pred16.RData")
-save(SBLD4_cog, file="SBLD_cog16.RData")
+save(SBLD_index, file="SBLD_index4.RData")
+save(SBLD_pred4, file="SBLD_pred4.RData")
+save(SBLD4_cog, file="SBLD_cog4.RData")
 
 
 #Conditional effects plots 
