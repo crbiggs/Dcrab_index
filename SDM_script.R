@@ -36,7 +36,7 @@ DHARMa::testQuantiles(fitD)
 fitD
 save(fitD, file="fitD.RData")
 
-Dis_rangeG16  <- expand_grid(G16YDI, DIS = c(0,15,30,45,60,75,90,105,120, 135, 150))
+Dis_rangeG16  <- expand_grid(G4YDI, DIS = c(0,15,30,45,60,75,90,105,120, 135, 150))
 
 DIS_range_pred16 <- predict(Dis_sdm, newdata=Dis_rangeG16, return_tmb_object = T)
 
